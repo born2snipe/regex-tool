@@ -8,6 +8,12 @@
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>Regex Tool</name>
+
+  <properties>
+    <keystore>${basedir}/target/keystore</keystore>
+    <jnlp.codebase>http://http://github.com/born2snipe</jnlp.codebase>
+    <main.class>b2s.regex.App</main.class>
+  </properties>
   
   <dependencies>
 
@@ -34,22 +40,94 @@
           </plugin>
 
           <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <mainClass>b2s.regex.App</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+              <archive>
+                <manifest>
+                  <addClasspath>true</addClasspath>
+                  <mainClass>${main.class}</mainClass>
+                </manifest>
+              </archive>
+            </configuration>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>keytool-maven-plugin</artifactId>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>genkey</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <keystore>${keystore}</keystore>
+                <dname>cn=Dan Dudley, ou=None, L=West Des Moines, ST=IA, o=${artifactId}, c=US</dname>
+                <keypass>${artifactId}</keypass>
+                <storepass>${artifactId}</storepass>
+                <alias>${artifactId}</alias>
+                <validity>3650</validity>
+            </configuration>
+        </plugin>
 
+        <plugin>
+            <groupId>com.codecrate</groupId>
+            <artifactId>webstart-maven-plugin</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>generate-jnlp</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <mainClass>${main.class}</mainClass>
+                <keystore>${keystore}</keystore>
+                <keypass>${artifactId}</keypass>
+                <storepass>${artifactId}</storepass>
+                <alias>${artifactId}</alias>
+                <offlineAllowed>true</offlineAllowed>
+                <allPermissions>true</allPermissions>
+                <j2seVersion>1.6+</j2seVersion>
+                <codebase>${jnlp.codebase}</codebase>
+                <vendor>Dan Dudley</vendor>
+                <homepage>http://github.com/born2snipe</homepage>
+                <description>A Regular Expression Tool</description>
+            </configuration>
+        </plugin>
 
     </plugins>
 
 
   </build>
+
+  <pluginRepositories>
+
+        <pluginRepository>
+            <id>codecrate-repository</id>
+            <name>Codecrate Repository</name>
+            <url>http://maven.codecrate.com/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+
+
+    </pluginRepositories>
+
+    <repositories>
+        <repository>
+            <id>codecrate-repository</id>
+            <name>Codecrate Repository</name>
+            <url>http://maven.codecrate.com/</url>
+        </repository>
+    </repositories>
 
 </project>
