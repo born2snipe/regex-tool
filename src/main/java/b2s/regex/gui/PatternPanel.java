@@ -9,13 +9,12 @@ import java.util.regex.Pattern;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
+import b2s.regex.PatternChangedManager;
 
 public class PatternPanel extends JPanel {
     private final JTextField patternField = new JTextField();
-    private List<PatternChangeListener> listeners = new ArrayList<PatternChangeListener>();
 
-    public PatternPanel() {
+    public PatternPanel(final PatternChangedManager patternChangedManager) {
         super(new BorderLayout());
 
         add(new JLabel("Pattern:"), BorderLayout.WEST);
@@ -30,9 +29,9 @@ public class PatternPanel extends JPanel {
                             lastPattern = patternField.getText();
                             if (lastPattern.trim().length() > 0) {
                                 try {
-                                    notifyListenersOfNewPattern(Pattern.compile(lastPattern));
+                                    patternChangedManager.patternChanged(Pattern.compile(lastPattern));
                                 } catch (java.util.regex.PatternSyntaxException e) {
-                                    notifyListenersOfBaddPattern(lastPattern);
+                                    patternChangedManager.badPattern(lastPattern);
                                 }
                             }
                         }
@@ -48,10 +47,11 @@ public class PatternPanel extends JPanel {
         thread.setDaemon(true);
         thread.start();
 
-        addPatternChangeListener(new PatternChangeListener() {
+        
+        patternChangedManager.addListener(new PatternChangedManager.PatternChangeListener() {
 
             public void patternChanged(Pattern newRegexPattern) {
-                SwingUtilities.invokeLater(new Runnable(){
+                SwingUtil.invokeLater(new Runnable(){
                     public void run() {
                         patternField.setForeground(Color.black);
                     }
@@ -59,33 +59,12 @@ public class PatternPanel extends JPanel {
             }
 
             public void badPattern(String pattern) {
-                SwingUtilities.invokeLater(new Runnable(){
+                SwingUtil.invokeLater(new Runnable(){
                     public void run() {
                         patternField.setForeground(Color.red);
                     }
                 });
             }
         });
-    }
-
-    private void notifyListenersOfNewPattern(Pattern pattern) {
-        for (PatternChangeListener listener : listeners) {
-            listener.patternChanged(pattern);
-        }
-    }
-
-    private void notifyListenersOfBaddPattern(String pattern) {
-        for (PatternChangeListener listener : listeners) {
-            listener.badPattern(pattern);
-        }
-    }
-
-    public void addPatternChangeListener(PatternChangeListener listener) {
-        listeners.add(listener);
-    }
-
-    public static interface PatternChangeListener {
-        void patternChanged(Pattern newRegexPattern);
-        void badPattern(String pattern);
     }
 }
