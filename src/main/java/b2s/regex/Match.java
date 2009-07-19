@@ -20,21 +20,21 @@ public class Match {
 
 
     public static class Group {
-        private int position, length;
+        private int position, end;
         private String content;
 
-        public Group(String content, int position, int length) {
+        public Group(String content, int position, int endPosition) {
             this.content = content;
             this.position = position;
-            this.length = length;
+            this.end = endPosition;
         }
 
         public String getContent() {
             return content;
         }
 
-        public int getLength() {
-            return length;
+        public int getEnd() {
+            return end;
         }
 
         public int getPosition() {

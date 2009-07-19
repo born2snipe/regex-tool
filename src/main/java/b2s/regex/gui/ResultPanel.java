@@ -2,8 +2,11 @@ package b2s.regex.gui;
 
 import b2s.regex.Match;
 import b2s.regex.ResultsChangedManager;
+import b2s.regex.SelectionChangedManager;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.util.ArrayList;
@@ -12,12 +15,27 @@ import java.util.List;
 public class ResultPanel extends JPanel {
     private JTable resultsTable;
     private ResultModel model = new ResultModel();
+    private final SelectionChangedManager selectionChangedManager = SelectionChangedManager.instance();
 
     public ResultPanel(ResultsChangedManager resultsChangedManager) {
         super(new BorderLayout());
         resultsTable = new JTable(model);
         add(new JLabel("Matches"), BorderLayout.NORTH);
         add(new JScrollPane(resultsTable), BorderLayout.CENTER);
+        resultsTable.setColumnSelectionAllowed(true);
+        resultsTable.setRowSelectionAllowed(true);
+
+        resultsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent listSelectionEvent) {
+                int col = resultsTable.getSelectedColumn();
+                if (col == 0) {
+                    return;
+                }
+                int row = resultsTable.getSelectedRow();
+                Match.Group group = model.get(row, col - 1);
+                selectionChangedManager.select(group);
+            }
+        });
 
         resultsChangedManager.addHandler(new ResultsChangedManager.Handler() {
             public void clearResults() {
@@ -25,6 +43,7 @@ public class ResultPanel extends JPanel {
                     public void run() {
                         model.updateNumberOfColumns(1);
                         model.clear();
+                        selectionChangedManager.clear();
                     }
                 });
             }
@@ -45,6 +64,10 @@ public class ResultPanel extends JPanel {
     private static class ResultModel extends AbstractTableModel {
         private List<Match> matches = new ArrayList<Match>();
         private int numberOfColumns = 6;
+
+        public Match.Group get(int row, int group) {
+            return matches.get(row).get(group);
+        }
 
         public int getRowCount() {
             return matches.size();

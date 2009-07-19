@@ -3,6 +3,9 @@ package b2s.regex.gui;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import b2s.regex.DataChangedManager;
+import b2s.regex.SelectionChangedManager;
+import b2s.regex.Match;
+
 import java.awt.BorderLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -26,6 +29,24 @@ public class DataPanel extends JPanel {
                 }
 
                 DataChangedManager.instance().dataChanged(editorPane.getText());
+            }
+        });
+
+        SelectionChangedManager.instance().addHandler(new SelectionChangedManager.Handler(){
+            public void clearSelection() {
+                SwingUtil.invokeLater(new Runnable(){
+                    public void run() {
+                        editorPane.select(0, 0);
+                    }
+                });
+            }
+
+            public void select(final Match.Group group) {
+                SwingUtil.invokeLater(new Runnable(){
+                    public void run() {
+                        editorPane.select(group.getPosition(), group.getEnd());
+                    }
+                });
             }
         });
     }
