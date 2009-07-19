@@ -25,17 +25,20 @@ public class ResultPanel extends JPanel {
         resultsTable.setColumnSelectionAllowed(true);
         resultsTable.setRowSelectionAllowed(true);
 
-        resultsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        ListSelectionListener selectionListener = new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent listSelectionEvent) {
                 int col = resultsTable.getSelectedColumn();
-                if (col == 0) {
+                int row = resultsTable.getSelectedRow();
+                if (col == 0 || col == -1 || row == -1) {
                     return;
                 }
-                int row = resultsTable.getSelectedRow();
                 Match.Group group = model.get(row, col - 1);
                 selectionChangedManager.select(group);
             }
-        });
+        };
+
+        resultsTable.getSelectionModel().addListSelectionListener(selectionListener);
+        resultsTable.getColumnModel().getSelectionModel().addListSelectionListener(selectionListener);
 
         resultsChangedManager.addHandler(new ResultsChangedManager.Handler() {
             public void clearResults() {
