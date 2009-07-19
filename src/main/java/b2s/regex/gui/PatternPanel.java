@@ -3,21 +3,18 @@ package b2s.regex.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import b2s.regex.PatternChangedManager;
+import javax.swing.BorderFactory;
 
 public class PatternPanel extends JPanel {
     private final JTextField patternField = new JTextField();
 
     public PatternPanel(final PatternChangedManager patternChangedManager) {
         super(new BorderLayout());
-
-        add(new JLabel("Pattern:"), BorderLayout.WEST);
+        setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Expression"));
         add(patternField, BorderLayout.CENTER);
         final Thread thread = new Thread(new Runnable(){
             private String lastPattern = "";
