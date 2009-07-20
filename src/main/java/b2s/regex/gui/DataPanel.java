@@ -5,10 +5,15 @@ import b2s.regex.Match;
 import b2s.regex.SelectionChangedManager;
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Document;
+import javax.swing.text.Highlighter;
 import java.awt.*;
 
 public class DataPanel extends JPanel {
     private JEditorPane editorPane;
+    private static final MyHighlightPainter PAINTER = new MyHighlightPainter();
 
     public DataPanel(DataChangedManager dataChangedManager) {
         super(new BorderLayout());
@@ -44,7 +49,7 @@ public class DataPanel extends JPanel {
             public void clearSelection() {
                 SwingUtil.invokeLater(new Runnable() {
                     public void run() {
-                        editorPane.select(editorPane.getCaretPosition(), editorPane.getCaretPosition());
+                        clearHighlighters();
                     }
                 });
             }
@@ -52,10 +57,38 @@ public class DataPanel extends JPanel {
             public void select(final Match.Group group) {
                 SwingUtil.invokeLater(new Runnable() {
                     public void run() {
-                        editorPane.select(group.getPosition(), group.getEnd());
+                        clearHighlighters();
+                        addHighlighter(group);
+                        editorPane.setCaretPosition(group.getPosition());
                     }
                 });
             }
         });
     }
+
+    private void addHighlighter(Match.Group group) {
+        try {
+            editorPane.getHighlighter().addHighlight(group.getPosition(), group.getEnd(), PAINTER);
+        } catch (BadLocationException e) {
+        }
+    }
+
+    private void clearHighlighters() {
+        Highlighter hilite = editorPane.getHighlighter();
+        Highlighter.Highlight[] hilites = hilite.getHighlights();
+
+        for (int i = 0; i < hilites.length; i++) {
+            if (hilites[i].getPainter() instanceof MyHighlightPainter) {
+                hilite.removeHighlight(hilites[i]);
+            }
+        }
+
+    }
+
+    private static class MyHighlightPainter extends DefaultHighlighter.DefaultHighlightPainter {
+        public MyHighlightPainter() {
+            super(Color.green.brighter().brighter());
+        }
+    }
+
 }
