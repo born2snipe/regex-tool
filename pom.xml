@@ -11,7 +11,7 @@
 
     <properties>
         <keystore>${basedir}/target/keystore</keystore>
-        <jnlp.codebase>http://http://github.com/born2snipe</jnlp.codebase>
+        <jnlp.codebase>http://cloud.github.com/downloads/born2snipe/regex-tool</jnlp.codebase>
         <main.class>b2s.regex.App</main.class>
     </properties>
 
@@ -95,7 +95,7 @@
                     <j2seVersion>1.6+</j2seVersion>
                     <codebase>${jnlp.codebase}</codebase>
                     <vendor>Dan Dudley</vendor>
-                    <homepage>http://github.com/born2snipe</homepage>
+                    <homepage>http://github.com/born2snipe/regex-tool/</homepage>
                     <description>A Regular Expression Tool</description>
                 </configuration>
             </plugin>
