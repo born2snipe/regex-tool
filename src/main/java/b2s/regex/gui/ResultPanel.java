@@ -24,6 +24,7 @@ public class ResultPanel extends JPanel {
         add(new JScrollPane(resultsTable), BorderLayout.CENTER);
         resultsTable.setColumnSelectionAllowed(true);
         resultsTable.setRowSelectionAllowed(true);
+        resultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         ListSelectionListener selectionListener = new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent listSelectionEvent) {

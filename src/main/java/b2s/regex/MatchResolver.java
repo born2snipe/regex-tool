@@ -1,13 +1,13 @@
 package b2s.regex;
 
+import javax.swing.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.SwingWorker;
 
 public class MatchResolver implements PatternChangedManager.PatternChangeListener, DataChangedManager.Handler {
+    private static final Pattern LINES = Pattern.compile("(.*?)(\r\n|\n|$)");
     private String data;
     private Pattern pattern;
 
@@ -32,33 +32,48 @@ public class MatchResolver implements PatternChangedManager.PatternChangeListene
             return;
         }
 
-        final List<String> lines = new ArrayList<String>();
+        final List<Line> lines = new ArrayList<Line>();
         if ((pattern.flags() & Pattern.MULTILINE) == Pattern.MULTILINE) {
-            lines.add(data);
+
         } else {
-            lines.addAll(Arrays.asList(data.split("\r\n|\n")));
+            String seperator = System.getProperty("line.separator");
+            for (String line : data.split(seperator)) {
+                lines.add(new Line(line, seperator));
+            }
         }
 
         SwingWorker worker = new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
-                for (String line : lines) {
-                    Matcher matcher = pattern.matcher(line);
+                int offset = 0;
+
+                for (Line line : lines) {
+                    Matcher matcher = pattern.matcher(line.content);
                     while (matcher.find()) {
                         Match match = new Match();
-                        match.add(new Match.Group(matcher.group(0), matcher.start(0), matcher.end(0)));
-                        for (int i=1;i<=matcher.groupCount();i++) {
-                            match.add(new Match.Group(matcher.group(i), matcher.start(i), matcher.end(i)));
+                        match.add(new Match.Group(matcher.group(0), offset + matcher.start(0), offset + matcher.end(0)));
+                        for (int i = 1; i <= matcher.groupCount(); i++) {
+                            match.add(new Match.Group(matcher.group(i), offset + matcher.start(i), offset + matcher.end(i)));
                         }
                         ResultsChangedManager.instance().addMatch(match);
                     }
+                    offset += line.content.length() + line.lineEnding.length();
                 }
 
                 return null;
             }
         };
         worker.execute();
-        
+
     }
 
+    private static class Line {
+        public final String content;
+        public final String lineEnding;
+
+        private Line(String content, String lineEnding) {
+            this.content = content;
+            this.lineEnding = lineEnding;
+        }
+    }
 }

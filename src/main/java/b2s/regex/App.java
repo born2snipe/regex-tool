@@ -1,18 +1,14 @@
 package b2s.regex;
 
-import java.util.regex.Pattern;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-import b2s.regex.gui.PatternPanel;
 import b2s.regex.gui.DataPanel;
+import b2s.regex.gui.PatternPanel;
 import b2s.regex.gui.ResultPanel;
-import java.awt.BorderLayout;
-import javax.swing.JSplitPane;
-import javax.swing.SwingWorker;
-import javax.swing.UIManager;
+
+import javax.swing.*;
+import java.awt.*;
 
 
-public class App  extends JFrame {
+public class App extends JFrame {
     private PatternPanel patternPanel = new PatternPanel(PatternChangedManager.instance());
     private DataPanel dataPanel = new DataPanel(DataChangedManager.instance());
     private ResultPanel resultPanel = new ResultPanel(ResultsChangedManager.instance());
@@ -33,9 +29,9 @@ public class App  extends JFrame {
         DataChangedManager.instance().addHandler(matchResolver);
     }
 
-    public static void main( String[] args ) throws Exception {
+    public static void main(String[] args) throws Exception {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        SwingUtilities.invokeLater(new Runnable(){
+        SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 new App().setVisible(true);
             }
