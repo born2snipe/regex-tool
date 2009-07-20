@@ -6,8 +6,6 @@ import b2s.regex.SelectionChangedManager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 public class DataPanel extends JPanel {
     private JEditorPane editorPane;
@@ -18,34 +16,35 @@ public class DataPanel extends JPanel {
         add(new JLabel("Data:"), BorderLayout.NORTH);
         add(new JScrollPane(editorPane), BorderLayout.CENTER);
 
-        editorPane.addKeyListener(new KeyAdapter() {
-            private String previousContent;
+        final Thread thread = new Thread(new Runnable() {
+            private String previousContent = "";
 
-            public void keyReleased(KeyEvent event) {
-                switch (event.getKeyCode()) {
-                    case KeyEvent.VK_UP:
-                    case KeyEvent.VK_DOWN:
-                    case KeyEvent.VK_LEFT:
-                    case KeyEvent.VK_RIGHT:
-                    case KeyEvent.VK_SHIFT:
-                    case KeyEvent.VK_META:
-                        return;
-                }
-                if (previousContent != null) {
-                    if (previousContent.equals(editorPane.getText())) {
-                        return;
+            public void run() {
+                while (true) {
+                    synchronized (editorPane) {
+                        if (!editorPane.getText().equals(previousContent)) {
+                            previousContent = editorPane.getText();
+                            if (previousContent.trim().length() > 0) {
+                                DataChangedManager.instance().dataChanged(editorPane.getText());
+                            }
+                        }
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException err) {
+
                     }
                 }
-                previousContent = editorPane.getText();
-                DataChangedManager.instance().dataChanged(editorPane.getText());
             }
         });
+        thread.setDaemon(true);
+        thread.start();
 
         SelectionChangedManager.instance().addHandler(new SelectionChangedManager.Handler() {
             public void clearSelection() {
                 SwingUtil.invokeLater(new Runnable() {
                     public void run() {
-                        editorPane.select(0, 0);
+                        editorPane.select(editorPane.getCaretPosition(), editorPane.getCaretPosition());
                     }
                 });
             }

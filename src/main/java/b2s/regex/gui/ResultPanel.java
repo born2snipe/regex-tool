@@ -67,7 +67,7 @@ public class ResultPanel extends JPanel {
 
     private static class ResultModel extends AbstractTableModel {
         private List<Match> matches = new ArrayList<Match>();
-        private int numberOfColumns = 6;
+        private int numberOfColumns = 1;
 
         public Match.Group get(int row, int group) {
             return matches.get(row).get(group);
