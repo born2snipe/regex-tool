@@ -1,13 +1,16 @@
 package b2s.regex;
 
 import javax.swing.*;
+
+import b2s.regex.LineSplitter.Line;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MatchResolver implements PatternChangedManager.PatternChangeListener, DataChangedManager.Handler {
-    private static final Pattern LINES = Pattern.compile("(.*?)(\r\n|\n|$)");
+    private static final LineSplitter splitter = new LineSplitter();
     private String data;
     private Pattern pattern;
 
@@ -36,10 +39,7 @@ public class MatchResolver implements PatternChangedManager.PatternChangeListene
         if ((pattern.flags() & Pattern.MULTILINE) == Pattern.MULTILINE) {
 
         } else {
-            String seperator = System.getProperty("line.separator");
-            for (String line : data.split(seperator)) {
-                lines.add(new Line(line, seperator));
-            }
+            lines.addAll(splitter.split(data));
         }
 
         SwingWorker worker = new SwingWorker<Void, Void>() {
@@ -67,13 +67,5 @@ public class MatchResolver implements PatternChangedManager.PatternChangeListene
 
     }
 
-    private static class Line {
-        public final String content;
-        public final String lineEnding;
 
-        private Line(String content, String lineEnding) {
-            this.content = content;
-            this.lineEnding = lineEnding;
-        }
-    }
 }
